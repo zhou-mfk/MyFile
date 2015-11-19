@@ -1,0 +1,29 @@
+
+# rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org 
+ 
+# rpm -ivh http://www.elrepo.org/elrepo-release-6-5.el6.elrepo.noarch.rpm 
+ 
+# yum --enablerepo=elrepo-kernel install kernel-lt -y 
+# vim /etc/grub.conf default=1 改为default=0 
+# reboot 
+# uname -a Linux iZ2893wjzgyZ 3.10.65-1.el6.elrepo.x86_64 #1 SMP Sat Jan 17 10:36:35 EST 2015 x86_64 x86_64 x86_64 GNU/Linux
+
+
+
+# yum -y install docker-io
+
+启动docker进程
+# service docker start
+
+如果我们需要开机自启动，如下：
+# chkconfig docker on
+
+报错解决:
+INFO[0000] +job serveapi(unix:///var/run/docker.sock)  
+INFO[0000] WARNING: You are running linux kernel version 2.6.32-431.el6.x86_64, which might be unstable running docker. Please upgrade your kernel to 3.8.0.
+docker: relocation error: docker: symbol dm_task_get_info_with_deferred_remove, version Base not defined in file libdevmapper.so.1.02 with link time reference
+[root@oracledb ~]# yum upgrade device-mapper-libs
+
+解决办法：
+执行：
+# yum upgrade device-mapper-libs

@@ -1,0 +1,133 @@
+python 发送邮件多种形式
+
+1、最基本的邮件发送即普通文本邮件
+#!/usr/bin/python
+#encoding: utf-8
+
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+
+
+mail_host = 'smtp.163.com' #设置邮件服务器地址，这里以163的邮箱为例子。
+mail_user = 'xxx@163.com' #发送邮件的用户名
+mail_pwd = 'password' #登录邮箱服务器的密码
+mail_to = 'xx@163.com;yy@163.com' #接收邮件的用户，多个用户用英文的标点;分割
+
+subject = 'python email test'   #设置主题内容
+
+msg = MIMEText('你好','text','utf-8') #MIMEText()中设置邮件内容，格式要用text,并使用utf-8格式
+msg['Subject'] = Header(subject,'utf-8') #主题也使用用utf-8格式
+msg['From'] = mail_user
+msg['Subject'] = subject
+msg['To'] = mail_to
+
+try:
+	smtp = smtplib.SMTP()
+	smtp.connect(mail_host)
+	smtp.login(mail_user,mail_pwd)
+	smtp.sendmail(mail_user,mail_to,msg.as_string())
+	smtp.quit()
+	print 'Send email to %s success' % mail_to
+except Exception, e:
+	print e
+else:
+	smtp.quit()
+	
+2、	html邮件的发送
+与上面一种不同的是:
+	msg = MIMEText('<html><h1>你好</h1></html>','html','utf-8') #只有一处不同，
+
+
+3、带图片的HTML邮件
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage 
+……
+…………  #设置服务器和用户密码等
+…………
+
+msgRoot = MIMEMultipart('related')
+msgRoot['From'] = mail_user  #如果不添加上，那么在显示信息上就没有
+msgRoot['Subject'] = subject
+msgRoot['To'] = mail_to
+
+msgText = MIMEText('<b>Some<i>HTML</i>text</b>and a image.<img alt=""src="cid:image1"/> good!','html','utf-8')
+msgRoot.attach(msgText)
+fb = open('a.png','rb')
+msgImage = MIMEImage(fb.read())
+fb.close()
+msgImage.add_header('Content-ID','<image1>')
+msgRoot.attach(msgImage)
+ 
+if mail_cc:msgRoot['Cc'] = mail_cc  #抄送的用户
+
+smtp = smtplib.SMTP()
+smtp.connect('smtp.163.com')
+smtp.login(username,password)
+
+toaddrs = mail_user.split(';')
+if mail_cc:toaddrs=toaddrs+mail_cc.split(';')
+
+smtp.sendmail(sender,toaddrs,msgRoot.as_string())
+smtp.quit()
+
+4、有附件的邮件
+
+msgRoot = MIMEMultipart('related')
+msgRoot['From'] = mail_user  #如果不添加上，那么在显示信息上就没有
+msgRoot['Subject'] = subject
+msgRoot['To'] = mail_to
+
+#添加附件
+att = MIMEText(open('h:\\python\\1.jpg', 'rb').read(), 'base64', 'utf-8')
+att["Content-Type"] = 'application/octet-stream'
+att["Content-Disposition"] = 'attachment; filename="1.jpg"'
+msgRoot.attach(att)
+#添加内容	
+att1 = MIMEText('<html><h1>你好，请查收附件！</h1></html>','html','utf-8')
+msgRoot.attach(att1)  
+
+smtp = smtplib.SMTP()
+smtp.connect('smtp.163.com')
+smtp.login(username, password)
+smtp.sendmail(sender, receiver, msgRoot.as_string())
+smtp.quit()
+
+5、如果是要群发：
+
+
+
+
+mail_host = 'smtp.163.com' #设置邮件服务器地址，这里以163的邮箱为例子。
+mail_user = 'xxx@163.com' #发送邮件的用户名
+mail_pwd = 'password' #登录邮箱服务器的密码
+mail_to = 'xx@163.com;yy@163.com' #接收邮件的用户，多个用户用英文的标点;分割
+mail_cc = 'aa@163.com;bb@163.com' #抄送的用户
+mail_bcc = 'tt@163.com;22@163.com #密送的用户
+
+
+def send_email(subject,content):
+	msg = MIMEText(content,_charset='utf-8',_subtype='html')
+	msg['From'] = mail_user
+	msg['Subject'] = subject
+	msg['To'] = mail_to
+	
+	if mail_cc:msg['Cc'] = mail_cc
+	if mail_bcc:msg['Bcc'] = mail_bcc
+	
+	try:
+		s = smtplib.SMTP()
+		s.connect(mail_host)
+		s.login(mail_user,mail_pwd)
+		
+		toaddrs = mail_to.split(';')
+		if mail_cc:toaddrs=toaddrs+mail_cc.split(';')
+		if mail_bcc:toaddrs=toaddrs+mail_bcc.split(';')
+		
+		s.sendmail(mail_user,toaddrs,msg.as_string())
+		s.close()
+		print 'send mail to %s success' % toaddrs
+	except Exception, e:
+		print e

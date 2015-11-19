@@ -1,0 +1,49 @@
+@property 可以将python定义的函数“当做”属性访问，从而提供更加友好访问方式
+
+
+
+
+
+
+脚本中python 中连接MySQL的方式：
+
+1、使用配置的方式，mysql.conf
+内容如下：
+[mysqld]
+host = 1.1.1.1
+user = xxxxx 
+passwd = xxxxxxxx
+db = test
+charset = utf8
+
+#!/usr/bin/python
+#coding:utf8
+import MySQLdb
+import ConfigParser
+
+config_file = 'mysql.conf'
+parser = ConfigParser.ConfigParser()
+parser.read(config_file)
+
+conn = MySQLdb.connect(**dict(parser.items('mysqld')))
+cur = conn.cursor()
+
+sql = "select * from mysql.user"
+cur.execute(sql)
+cur.fetchone()   #fetchone 取出第一个结果 ，，fetchall取出所有的结果
+
+
+2、直接连接
+import MySQLdb
+
+try:
+	conn=MySQLdb.connect(host='localhost',user='root',passwd='root',db='test',port=3306)
+    cur=conn.cursor()
+    cur.execute('select * from user')
+    cur.close()
+    conn.close()
+except MySQLdb.Error,e:
+	print "MySQL Error %d: %s" %(e.args[0],e.args[1])
+
+
+  
